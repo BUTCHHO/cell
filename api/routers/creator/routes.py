@@ -6,5 +6,4 @@ creator_router = APIRouter(prefix='/create/')
 
 
 @creator_router.get('repository')
-def create_repository_endpoint(repository: RepositoryInputModel):
-
+def create_repository_endpoint(repository: RepositoryInputModel): pass
