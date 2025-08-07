@@ -3,7 +3,7 @@ import shutil
 from aiofiles import open as aio_open
 from pathlib import Path
 
-from path_explorator import EntityIsNotADir
+from file_system_actor import EntityIsNotADir
 
 from exceptions.path_exc import EntityDoesNotExists
 
