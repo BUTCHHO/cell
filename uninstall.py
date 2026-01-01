@@ -31,14 +31,20 @@ try:
     if should_delete_databases:
         database_path = Config.database_path
         shutil.rmtree(str(database_path))
+except FileNotFoundError:
+    logger.debug("Database already deleted. Skip")
 except:
     logger.error(f"ERROR: Failed to delete database")
     raise
 
+
 try:
     if should_delete_configs:
-        Path(Config.configs_path).unlink()
+        shutil.rmtree(Config.configs_path)
+except FileNotFoundError:
+    logger.debug("configs already deleted. Skip")
 except:
     logger.error(f"ERROR: Failed to delete configs")
     raise
 
+shutil.rmtree(Path(Config.database_path).parent)

@@ -31,8 +31,10 @@ try:
     main_config_file = Path(configs, "config.json")
     main_config_file.touch()
     with open(main_config_file, 'w') as f:
-        data = {"database_path": str(cell_database_dir)
+        data = {"database_path": str(cell_database_dir)}
         dump(data, f)
 except:
     logger.log(1, "ERROR: failed to create main config file ")
     raise
+
+
