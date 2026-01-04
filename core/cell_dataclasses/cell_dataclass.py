@@ -1,4 +1,4 @@
-from cell_dataclasses import dataclass
+from dataclasses import dataclass
 from typing import Any
 
 @dataclass

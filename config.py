@@ -12,11 +12,11 @@ logger = getLogger(__name__)
 
 logger.debug("starting config load")
 try:
-    base_config_file = Path("/etc/opt/cell/default_config.json")
+    base_config_file = Path("/etc/opt/cell/base_config.json")
     with open(base_config_file, "r") as f:
         base_config = load(f)
 
-    configs_path = Path(base_config["default_configs_path"])
+    configs_path = Path(base_config["base_configs_path"])
     main_config_file = Path(configs_path, "config.json")
     with open(main_config_file, "r") as f:
         main_config = load(f)
@@ -27,7 +27,7 @@ except:
 
 
 class Config:
-    default_config_path = "/etc/opt/cell/default_config.json"
+    base_config_path = "/etc/opt/cell/base_config.json"
     configs_path = str(configs_path)
     database_path = main_config["database_path"]
 

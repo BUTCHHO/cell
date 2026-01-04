@@ -1,0 +1,490 @@
+from pathlib import Path
+from json import load
+from logging import getLogger, basicConfig, DEBUG
+
+basicConfig(
+    level=DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = getLogger(__name__)
+
+logger.debug("starting config load")
+try:
+    base_config_file = Path("/etc/opt/cell/base_config.json")
+    with open(base_config_file, "r") as f:
+        base_config = load(f)
+
+    configs_path = Path(base_config["base_configs_path"])
+    main_config_file = Path(configs_path, "config.json")
+    with open(main_config_file, "r") as f:
+        main_config = load(f)
+    is_config_loaded = True
+except:
+    logger.error(f"Could not load config")
+    raise
+
+
+class Config:
+    base_config_path = "/etc/opt/cell/base_config.json"
+    configs_path = str(configs_path)
+    database_path = main_config["database_path"]
+
+from pathlib import Path
+from json import dump
+from logging import getLogger
+
+logger = getLogger(__name__)
+
+cell_var_dir = Path('/var/opt/cell')
+try:
+    cell_var_dir.mkdir(parents=True, exist_ok=False)
+except FileExistsError:
+    logger.log(1, "ERROR: Error while creating Cell directory")
+    raise
+
+cell_database_dir = Path(cell_var_dir, "database")
+cell_database_dir.mkdir(parents=True, exist_ok=False)
+
+configs = Path("/etc/opt/cell")
+configs.mkdir(parents=True, exist_ok=False)
+
+# Базовый конфиг содержит информацию о том, где находится папка с конфигами. Менять местоположение базового конфига запрещено
+base_config_file = Path(configs, 'base_config.json')
+base_config_file.touch()
+try:
+    with open(base_config_file, 'w') as f:
+        data = {"base_configs_path": str(configs)}
+        dump(data, f)
+except:
+    logger.log(1, "ERROR: Error while writing base config file")
+    raise
+
+
+try:
+    main_config_file = Path(configs, "config.json")
+    main_config_file.touch()
+    with open(main_config_file, 'w') as f:
+        data = {"database_path": str(cell_database_dir)}
+        dump(data, f)
+except:
+    logger.log(1, "ERROR: failed to create main config file ")
+    raise
+
+
+from pathlib import Path
+import shutil
+import os
+from config import Config
+from logging import getLogger
+
+logger = getLogger(__name__)
+
+if os.geteuid() != 0:
+    raise Exception("Cell database can be uninstalled only by root.")
+
+should_delete_configs = input("Do you want to delete the configs? (y/n): ")
+
+match should_delete_configs.lower():
+    case "y":
+        should_delete_configs = True
+    case "n":
+        should_delete_configs = False
+
+should_delete_databases = input("Do you want to delete the databases? (y/n): ")
+confirmation = input("ARE YOU SURE? This will PERMANENTLY delete user data from the databases, including their FILES, RIGHTS, and ROLES. (y/n): : ").lower()
+if confirmation == 'n':
+    exit()
+match should_delete_databases.lower():
+    case "y":
+        should_delete_databases = True
+    case "n":
+        should_delete_databases = False
+
+try:
+    if should_delete_databases:
+        database_path = Config.database_path
+        shutil.rmtree(str(database_path))
+except FileNotFoundError:
+    logger.debug("Database already deleted. Skip")
+except:
+    logger.error(f"ERROR: Failed to delete database")
+    raise
+
+
+try:
+    if should_delete_configs:
+        shutil.rmtree(Config.configs_path)
+except FileNotFoundError:
+    logger.debug("configs already deleted. Skip")
+except:
+    logger.error(f"ERROR: Failed to delete configs")
+    raise
+
+shutil.rmtree(Path(Config.database_path).parent)from api.v1.api_v1 import CellAPI
+
+
+cell_api = CellAPI()
+
+
+request = cell_api.accept_request()
+from api.v1.errors.code_400 import InvalidCommandError
+
+class CellAPI:
+    def __init__(self, app):
+        self.commands = {"delete_cell": app.cell_deleter,
+                       "create_cell": app.cell_creator,}
+
+    def accept_request(self, request: dict):
+        command = request["command"]
+        command_handler = self.commands[command]
+        if not command_handler:
+            return InvalidCommandError()
+        return command_handler(request)
+
+
+
+class BaseError:
+    def __init__(self, status_code, msg, additional_data = None):
+        self.status_code = status_code
+        self.msg = msg
+        self.additional = additional_data
+
+    def __str__(self):
+        return f" CELL ERROR status code: {self.status_code}, msg: {self.msg}, additional: {self.additional}"
+
+from api.v1.errors.base import BaseError
+
+class InvalidCommandError(BaseError):
+    def __init__(self)
+        msg = "Command does not exist"
+        super().__init__(400, msg)from enum import Enum
+
+class CommandsEnum(Enum):
+    create_cell = "create_cell"
+    delete_cell = "delete_cell"
+from core.cell_dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class Cell:
+    id: Any
+    max_size_bytes: int
+    bodies: list
+    owners: list
+    auditors: list
+    writers: list
+    readers: list
+    is_open: boolfrom dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class User:
+    id: Any
+    name: str
+    password: str
+class CellMaker:
+    def __init__(self, db_path):
+        cell_database_path = db_path
+
+    def make_cell(self, owner, cell):
+==========================================
+# Файл: ./config.py
+==========================================
+from pathlib import Path
+from json import load
+from logging import getLogger, basicConfig, DEBUG
+
+basicConfig(
+    level=DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = getLogger(__name__)
+
+logger.debug("starting config load")
+try:
+    base_config_file = Path("/etc/opt/cell/base_config.json")
+    with open(base_config_file, "r") as f:
+        base_config = load(f)
+
+    configs_path = Path(base_config["base_configs_path"])
+    main_config_file = Path(configs_path, "config.json")
+    with open(main_config_file, "r") as f:
+        main_config = load(f)
+    is_config_loaded = True
+except:
+    logger.error(f"Could not load config")
+    raise
+
+
+class Config:
+    base_config_path = "/etc/opt/cell/base_config.json"
+    configs_path = str(configs_path)
+    database_path = main_config["database_path"]
+
+
+
+
+==========================================
+# Файл: ./install.py
+==========================================
+from pathlib import Path
+from json import dump
+from logging import getLogger
+
+logger = getLogger(__name__)
+
+cell_var_dir = Path('/var/opt/cell')
+try:
+    cell_var_dir.mkdir(parents=True, exist_ok=False)
+except FileExistsError:
+    logger.log(1, "ERROR: Error while creating Cell directory")
+    raise
+
+cell_database_dir = Path(cell_var_dir, "database")
+cell_database_dir.mkdir(parents=True, exist_ok=False)
+
+configs = Path("/etc/opt/cell")
+configs.mkdir(parents=True, exist_ok=False)
+
+# Базовый конфиг содержит информацию о том, где находится папка с конфигами. Менять местоположение базового конфига запрещено
+base_config_file = Path(configs, 'base_config.json')
+base_config_file.touch()
+try:
+    with open(base_config_file, 'w') as f:
+        data = {"base_configs_path": str(configs)}
+        dump(data, f)
+except:
+    logger.log(1, "ERROR: Error while writing base config file")
+    raise
+
+
+try:
+    main_config_file = Path(configs, "config.json")
+    main_config_file.touch()
+    with open(main_config_file, 'w') as f:
+        data = {"database_path": str(cell_database_dir)}
+        dump(data, f)
+except:
+    logger.log(1, "ERROR: failed to create main config file ")
+    raise
+
+
+
+
+
+==========================================
+# Файл: ./uninstall.py
+==========================================
+from pathlib import Path
+import shutil
+import os
+from config import Config
+from logging import getLogger
+
+logger = getLogger(__name__)
+
+if os.geteuid() != 0:
+    raise Exception("Cell database can be uninstalled only by root.")
+
+should_delete_configs = input("Do you want to delete the configs? (y/n): ")
+
+match should_delete_configs.lower():
+    case "y":
+        should_delete_configs = True
+    case "n":
+        should_delete_configs = False
+
+should_delete_databases = input("Do you want to delete the databases? (y/n): ")
+confirmation = input("ARE YOU SURE? This will PERMANENTLY delete user data from the databases, including their FILES, RIGHTS, and ROLES. (y/n): : ").lower()
+if confirmation == 'n':
+    exit()
+match should_delete_databases.lower():
+    case "y":
+        should_delete_databases = True
+    case "n":
+        should_delete_databases = False
+
+try:
+    if should_delete_databases:
+        database_path = Config.database_path
+        shutil.rmtree(str(database_path))
+except FileNotFoundError:
+    logger.debug("Database already deleted. Skip")
+except:
+    logger.error(f"ERROR: Failed to delete database")
+    raise
+
+
+try:
+    if should_delete_configs:
+        shutil.rmtree(Config.configs_path)
+except FileNotFoundError:
+    logger.debug("configs already deleted. Skip")
+except:
+    logger.error(f"ERROR: Failed to delete configs")
+    raise
+
+shutil.rmtree(Path(Config.database_path).parent)
+
+
+==========================================
+# Файл: ./main.py
+==========================================
+from api.v1.api_v1 import CellAPI
+
+
+cell_api = CellAPI()
+
+
+request = cell_api.accept_request()
+
+
+
+==========================================
+# Файл: ./api/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./api/v1/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./api/v1/api_v1.py
+==========================================
+from api.v1.errors.code_400 import InvalidCommandError
+
+class CellAPI:
+    def __init__(self, app):
+        self.commands = {"delete_cell": app.cell_deleter,
+                       "create_cell": app.cell_creator,}
+
+    def accept_request(self, request: dict):
+        command = request["command"]
+        command_handler = self.commands[command]
+        if not command_handler:
+            return InvalidCommandError()
+        return command_handler(request)
+
+
+
+
+
+
+==========================================
+# Файл: ./api/v1/errors/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./api/v1/errors/base.py
+==========================================
+class BaseError:
+    def __init__(self, status_code, msg, additional_data = None):
+        self.status_code = status_code
+        self.msg = msg
+        self.additional = additional_data
+
+    def __str__(self):
+        return f" CELL ERROR status code: {self.status_code}, msg: {self.msg}, additional: {self.additional}"
+
+
+
+
+==========================================
+# Файл: ./api/v1/errors/code_400.py
+==========================================
+from api.v1.errors.base import BaseError
+
+class InvalidCommandError(BaseError):
+    def __init__(self)
+        msg = "Command does not exist"
+        super().__init__(400, msg)
+
+
+==========================================
+# Файл: ./api/enum.py
+==========================================
+from enum import Enum
+
+class CommandsEnum(Enum):
+    create_cell = "create_cell"
+    delete_cell = "delete_cell"
+
+
+
+==========================================
+# Файл: ./core/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./core/cell_dataclasses/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./core/cell_dataclasses/cell_dataclass.py
+==========================================
+from core.cell_dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class Cell:
+    id: Any
+    max_size_bytes: int
+    bodies: list
+    owners: list
+    auditors: list
+    writers: list
+    readers: list
+    is_open: bool
+
+
+==========================================
+# Файл: ./core/cell_dataclasses/user_dataclass.py
+==========================================
+from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class User:
+    id: Any
+    name: str
+    password: str
+
+
+
+==========================================
+# Файл: ./core/cell_life_cycle/__init__.py
+==========================================
+
+
+
+==========================================
+# Файл: ./core/cell_life_cycle/cell_maker.py
+==========================================
+class CellMaker:
+    def __init__(self, db_path):
+        cell_database_path = db_path
+
+    def make_cell(self, owner, cell):
+
+
+
+==========================================
+# Файл: ./core/cell_life_cycle/cell_deleter.py
+==========================================
+
+
+

@@ -18,15 +18,17 @@ configs = Path("/etc/opt/cell")
 configs.mkdir(parents=True, exist_ok=False)
 
 # Базовый конфиг содержит информацию о том, где находится папка с конфигами. Менять местоположение базового конфига запрещено
-base_config_file = Path(configs, 'default_config.json')
+base_config_file = Path(configs, 'base_config.json')
 base_config_file.touch()
 try:
     with open(base_config_file, 'w') as f:
-        data = {"default_configs_path": str(configs)}
+        data = {"base_configs_path": str(configs)}
         dump(data, f)
 except:
-    logger.log(1, "ERROR: Error while writing default config file")
+    logger.log(1, "ERROR: Error while writing base config file")
     raise
+
+
 try:
     main_config_file = Path(configs, "config.json")
     main_config_file.touch()
